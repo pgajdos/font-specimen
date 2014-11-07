@@ -1,0 +1,19 @@
+font-specimen installation
+==========================
+
+1. Install development files of:
+--------------------------------
+* fontconfig
+* freetype2
+* harfbuzz
+* libpng
+
+2. Install:
+-----------
+* pkg-config
+
+3. Run:
+-------
+make
+make install
+
