@@ -294,8 +294,6 @@ void draw_bitmap(FT_Bitmap *glyph,
   FT_Int x_max = x + glyph->width;
   FT_Int y_max = y + glyph->rows;
 
-  char gray;
-
   for (i = x, p = 0; i < x_max; i++, p++)
   {
     for (j = y, q = 0; j < y_max; j++, q++)
@@ -308,9 +306,6 @@ void draw_bitmap(FT_Bitmap *glyph,
       {
         if (glyph->buffer[glyph->pitch * q + (p >> 3)] & (128 >> (p & 7)))
         {
-          //gray = ~(255*bitmap.grayscale/100);
-          //if (gray <  bitmap.data[j][i])
-          //bitmap.data[j][i] = gray;
           bitmap.data[j][i] = ~(~bitmap.data[j][i] | (255*bitmap.grayscale/100));
         }
       }

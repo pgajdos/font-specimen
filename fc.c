@@ -83,8 +83,7 @@ int fontconfig_pattern_set_string(FcPattern *pattern,
                                    const char *value)
 {
   FcPatternDel(pattern, object);
-  if (FcPatternAddString(pattern, object, (FcChar8 *)value) 
-        != FcResultMatch)
+  if (!FcPatternAddString(pattern, object, (FcChar8 *)value))
   {
     font_specimen_error("fontconfig: cannot set string to pattern");
     return -1;
@@ -110,8 +109,7 @@ int fontconfig_pattern_set_integer(FcPattern *pattern,
                                    int value)
 {
   FcPatternDel(pattern, object);
-  if (FcPatternAddInteger(pattern, object, value)
-           != FcResultMatch)
+  if (!FcPatternAddInteger(pattern, object, value))
   {
     font_specimen_error("fontconfig: cannot set integer to pattern");
     return -1;
@@ -137,8 +135,7 @@ int fontconfig_pattern_set_double(FcPattern *pattern,
                                    double value)
 {
   FcPatternDel(pattern, object);
-  if (FcPatternAddDouble(pattern, object, value)
-           != FcResultMatch)
+  if (!FcPatternAddDouble(pattern, object, value))
   {
     font_specimen_error("fontconfig: cannot set double to pattern");
     return -1;
@@ -164,8 +161,7 @@ int fontconfig_pattern_set_bool(FcPattern *pattern,
                                 int value)
 {
   FcPatternDel(pattern, object);
-  if (FcPatternAddBool(pattern, object, value)
-           != FcResultMatch)
+  if (!FcPatternAddBool(pattern, object, value))
   {
     font_specimen_error("fontconfig: cannot set boolean to pattern");
     return -1;
@@ -190,8 +186,7 @@ int fontconfig_pattern_set_charset(FcPattern *pattern,
                                    FcCharSet *value)
 {
   FcPatternDel(pattern, FC_CHARSET);
-  if (FcPatternAddCharSet(pattern, FC_CHARSET, value)
-           != FcResultMatch)
+  if (!FcPatternAddCharSet(pattern, FC_CHARSET, value))
   {
     font_specimen_error("fontconfig: cannot set charset to pattern");
     return -1;

@@ -153,6 +153,7 @@ int main(int argc, char *argv[])
         break;
       case 'd':
         specimen_set_debug(1);
+        break;
       case 'l':
         script_list = 1;
         break;
@@ -231,7 +232,7 @@ int main(int argc, char *argv[])
 
   if (specimen_write(type, pattern, script, png, width, height) < 0)
   {
-    fprintf(stderr, "Can not write specimen.");
+    fprintf(stderr, "Can not write specimen.\n");
     return 1;
   }
 
