@@ -33,8 +33,9 @@ typedef enum
 
 typedef enum
 {
-  SCRIPT_SORT_PERCENT,
-  SCRIPT_SORT_ABSOLUTE
+  SCRIPT_SORT_NONE,
+  SCRIPT_SORT_ABSOLUTE,
+  SCRIPT_SORT_PERCENT
 } script_sort_t;
 
 /* width = 0 => width automatic, height = 0 => height automatic */

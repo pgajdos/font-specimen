@@ -39,7 +39,7 @@ char *freetype_version(char *string, int maxlen)
   FT_Library library;
   if (FT_Init_FreeType(&library))
   {
-    error("freetype: can not initialize library");
+    font_specimen_error("freetype: can not initialize library");
     return NULL;
   }
   FT_Library_Version(library, &major, &minor, &patch);
@@ -58,7 +58,7 @@ int ft_initialize_bitmap(bitmap_t *bitmap, int height, int width)
   bitmap->data = (unsigned char **)malloc(height*sizeof(unsigned char *));
   if (! bitmap->data)
   {
-    error("freetype: no free memory");
+    font_specimen_error("freetype: no free memory");
     return -1;
   }
 
@@ -67,7 +67,7 @@ int ft_initialize_bitmap(bitmap_t *bitmap, int height, int width)
     bitmap->data[row] = (unsigned char *)malloc(width*sizeof(unsigned char));
     if (! bitmap->data[row])
     {
-      error("freetype: out of memory");
+      font_specimen_error("freetype: out of memory");
       return -1;
     }
     memset(bitmap->data[row], 255, width*sizeof(unsigned char)); /* white */
@@ -79,7 +79,7 @@ int ft_initialize_bitmap(bitmap_t *bitmap, int height, int width)
   err = FT_Init_FreeType(&bitmap->library);
   if (err)
   {
-    error("freetype: can not initialize library");
+    font_specimen_error("freetype: can not initialize library");
     return -1;
   }
 
@@ -168,14 +168,14 @@ int ft_bitmap_set_font(bitmap_t *bitmap,
   err = FT_New_Face(bitmap->library, (char *)file, 0, &bitmap->face);
   if (err)
   {
-    error("freetype: can not create face object");
+    font_specimen_error("freetype: can not create face object");
     return -1;
   }
 
   err = FT_Set_Pixel_Sizes(bitmap->face, 0, pxsize);
   if (err)
   {
-    error("freetype: can not set face size");
+    font_specimen_error("freetype: can not set face size");
     return -1;
   }
 
@@ -258,7 +258,7 @@ int ft_reduce_height(bitmap_t *bitmap, int new_height)
 
   if (new_height < 0 || new_height > bitmap->height)
   {
-    error("freetype: can not reduce height (wrong new_height)");
+    font_specimen_error("freetype: can not reduce height (wrong new_height)");
     return -1;
   }
 
@@ -294,6 +294,8 @@ void draw_bitmap(FT_Bitmap *glyph,
   FT_Int x_max = x + glyph->width;
   FT_Int y_max = y + glyph->rows;
 
+  char gray;
+
   for (i = x, p = 0; i < x_max; i++, p++)
   {
     for (j = y, q = 0; j < y_max; j++, q++)
@@ -305,7 +307,12 @@ void draw_bitmap(FT_Bitmap *glyph,
       if (monochrome)
       {
         if (glyph->buffer[glyph->pitch * q + (p >> 3)] & (128 >> (p & 7)))
-          bitmap.data[j][i] = ~(255*bitmap.grayscale/100);
+        {
+          //gray = ~(255*bitmap.grayscale/100);
+          //if (gray <  bitmap.data[j][i])
+          //bitmap.data[j][i] = gray;
+          bitmap.data[j][i] = ~(~bitmap.data[j][i] | (255*bitmap.grayscale/100));
+        }
       }
       else
       {
@@ -384,7 +391,7 @@ static int ft_draw_text_(uint32_t text[], int x,  int y,
   glyphs = malloc(nglyphs*sizeof(FT_Glyph));
   if (glyph_positions == NULL || glyphs == NULL)
   {
-    error("freetype: out of memory");
+    font_specimen_error("freetype: out of memory");
     return -1;
   }
 
@@ -407,14 +414,14 @@ static int ft_draw_text_(uint32_t text[], int x,  int y,
                           glyph_codepoints[g], bitmap->load_flags);
     if (err)
     {
-      error("freetype: can not load glyph");
+      font_specimen_error("freetype: can not load glyph");
       return -1;
     }
  
     err = FT_Get_Glyph(bitmap->face->glyph, &glyphs[g]);
     if (err)
     {
-      error("freetype: can not get glyph");
+      font_specimen_error("freetype: can not get glyph");
       return -1;
     }
   }
@@ -439,7 +446,7 @@ static int ft_draw_text_(uint32_t text[], int x,  int y,
                                  NULL, 1);
       if (err)
       {
-        error("freetype: can not render glyph");
+        font_specimen_error("freetype: can not render glyph");
         return -1;
       }
 
@@ -501,7 +508,7 @@ int ft_rot270(bitmap_t *bitmap)
     = (unsigned char **)malloc(bitmap->height*sizeof(unsigned char *));
   if (! bitmap->data)
   {
-    error("freetype: no free memory");
+    font_specimen_error("freetype: no free memory");
     return -1;
   }
 
@@ -511,7 +518,7 @@ int ft_rot270(bitmap_t *bitmap)
       = (unsigned char *)malloc(bitmap->width*sizeof(unsigned char));
     if (! bitmap->data[row])
     {
-      error("freetype: no free memory");
+      font_specimen_error("freetype: no free memory");
       return -1;
     }
   }

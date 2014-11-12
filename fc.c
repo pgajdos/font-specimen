@@ -57,13 +57,13 @@ FcPattern *fontconfig_get_font(FcPattern *pattern)
 
   if (! (p = FcPatternDuplicate(pattern)))
   {
-    error("fontconfig: out of memory");
+    font_specimen_error("fontconfig: out of memory");
     return NULL;
   }
 
   if (!FcConfigSubstitute(NULL, p, FcMatchPattern))
   {
-    error("fontconfig: out of memory");
+    font_specimen_error("fontconfig: out of memory");
     return NULL;
   }
   FcDefaultSubstitute(p);
@@ -72,7 +72,7 @@ FcPattern *fontconfig_get_font(FcPattern *pattern)
 
   if (r != FcResultMatch)
   {
-    error("fontconfig: match failed");
+    font_specimen_error("fontconfig: match failed");
     return NULL;
   }
   return match;
@@ -86,7 +86,7 @@ int fontconfig_pattern_set_string(FcPattern *pattern,
   if (FcPatternAddString(pattern, object, (FcChar8 *)value) 
         != FcResultMatch)
   {
-    error("fontconfig: cannot set string to pattern");
+    font_specimen_error("fontconfig: cannot set string to pattern");
     return -1;
   }
   return 0;
@@ -99,7 +99,7 @@ int fontconfig_pattern_get_string(FcPattern *pattern,
   if (FcPatternGetString(pattern, object, 0, (FcChar8**)value)
         != FcResultMatch)
   {
-    error("fontconfig: cannot get string from pattern");
+    font_specimen_error("fontconfig: cannot get string from pattern");
     return -1;
   }
   return 0;
@@ -113,7 +113,7 @@ int fontconfig_pattern_set_integer(FcPattern *pattern,
   if (FcPatternAddInteger(pattern, object, value)
            != FcResultMatch)
   {
-    error("fontconfig: cannot set integer to pattern");
+    font_specimen_error("fontconfig: cannot set integer to pattern");
     return -1;
   }
   return 0;
@@ -126,7 +126,7 @@ int fontconfig_pattern_get_integer(FcPattern *pattern,
   if (FcPatternGetInteger(pattern, object, 0, value)
            != FcResultMatch)
   {
-    error("fontconfig: cannot get integer from pattern");
+    font_specimen_error("fontconfig: cannot get integer from pattern");
     return -1;
   }
   return 0;
@@ -140,7 +140,7 @@ int fontconfig_pattern_set_double(FcPattern *pattern,
   if (FcPatternAddDouble(pattern, object, value)
            != FcResultMatch)
   {
-    error("fontconfig: cannot set double to pattern");
+    font_specimen_error("fontconfig: cannot set double to pattern");
     return -1;
   }
   return 0;
@@ -153,7 +153,7 @@ int fontconfig_pattern_get_double(FcPattern *pattern,
   if (FcPatternGetDouble(pattern, object, 0, value)
            != FcResultMatch)
   {
-    error("fontconfig: cannot get double from pattern");
+    font_specimen_error("fontconfig: cannot get double from pattern");
     return -1;
   }
   return 0;
@@ -167,7 +167,7 @@ int fontconfig_pattern_set_bool(FcPattern *pattern,
   if (FcPatternAddBool(pattern, object, value)
            != FcResultMatch)
   {
-    error("fontconfig: cannot set boolean to pattern");
+    font_specimen_error("fontconfig: cannot set boolean to pattern");
     return -1;
   }
   return 0;
@@ -180,7 +180,7 @@ int fontconfig_pattern_get_bool(FcPattern *pattern,
   if (FcPatternGetBool(pattern, object, 0, value)
            != FcResultMatch)
   {
-    error("fontconfig: cannot get boolean from pattern");
+    font_specimen_error("fontconfig: cannot get boolean from pattern");
     return -1;
   }
   return 0;
@@ -193,7 +193,7 @@ int fontconfig_pattern_set_charset(FcPattern *pattern,
   if (FcPatternAddCharSet(pattern, FC_CHARSET, value)
            != FcResultMatch)
   {
-    error("fontconfig: cannot set charset to pattern");
+    font_specimen_error("fontconfig: cannot set charset to pattern");
     return -1;
   }
   return 0;
@@ -205,7 +205,7 @@ int fontconfig_pattern_get_charset(FcPattern *pattern,
   if (FcPatternGetCharSet(pattern, FC_CHARSET, 0, value)
            != FcResultMatch)
   {
-    error("fontconfig: cannot get charset from pattern");
+    font_specimen_error("fontconfig: cannot get charset from pattern");
     return -1;
   }
   return 0;
@@ -215,7 +215,7 @@ FcPattern *fontconfig_pattern_new(void)
 {
   FcPattern *res = FcPatternCreate();
   if (! res)
-    error("fontconfig: cannot create pattern");
+    font_specimen_error("fontconfig: cannot create pattern");
   return res;
 }
 
@@ -223,7 +223,7 @@ FcPattern *fontconfig_pattern_duplicate(FcPattern *orig)
 {
   FcPattern *res = FcPatternDuplicate(orig);
   if (! res)
-    error("fontconfig: cannot create duplicate pattern");
+    font_specimen_error("fontconfig: cannot create duplicate pattern");
   return res;
 }
 

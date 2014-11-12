@@ -50,7 +50,7 @@ typedef struct
 
 void specimen_set_debug(int on)
 {
-  debug = on;
+  set_debug(on);
 }
 
 static int strings_waterfall(uint32_t string[],
@@ -82,7 +82,7 @@ static int strings_waterfall(uint32_t string[],
 
   if (nsizes <= 0 || size_to > MAX_PX_SIZE)
   {
-    error("specimen: wrong size intervals");
+    font_specimen_error("specimen: wrong size intervals");
     return -1;
   }
 
@@ -90,7 +90,7 @@ static int strings_waterfall(uint32_t string[],
   
   if (!*strings)
   {
-    error("specimen: not enough memory");
+    font_specimen_error("specimen: not enough memory");
     return -1;
   }
 
@@ -179,7 +179,7 @@ static int strings_compact(uint32_t string[],
   
   if (!*strings)
   {
-    error("specimen: no memory");
+    font_specimen_error("specimen: no memory");
     return -1;
   }
 
@@ -368,7 +368,7 @@ int specimen_write(specimen_type_t type,
     return -1;
   if (random == 2)
   {
-    error("specimen: no symbols for this font and script");
+    font_specimen_error("specimen: no symbols for this font and script");
     return -1;
   }
 
@@ -436,6 +436,7 @@ int specimen_write(specimen_type_t type,
   ft_free_bitmap(&bitmap);
   free(strings);
   fontconfig_pattern_destroy(fnt);
+
   return 0;
 }
 

@@ -20,6 +20,5 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-extern int debug;
-
-void error(const char *string);
+void set_debug(int on);
+void font_specimen_error(const char *string);

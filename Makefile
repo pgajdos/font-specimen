@@ -40,9 +40,9 @@ OBJS		 = fc.o unicode.o hbz.o ft.o specimen.o img_png.o error.o
 UNICODE_SOURCES  = blocks-map.txt blocks.sh blocks.txt Blocks.txt Scripts.txt sentences.txt SOURCES UnicodeData.txt unicode.txt 
 UNICODE_SCRIPTS  = collections-map.sh collections.sh scripts-map.sh scripts.sh  unicode.sh
 
-font-specimen:			font-specimen.c $(LIBRARY_FILE)
+font-specimen:			font-specimen.c .libs/$(LIBRARY_FILE)
 				gcc -L.libs $(MYCFLAGS) $(CFLAGS) $(MYLDFLAGS) $(LDLAGS) -o font-specimen font-specimen.c -l$(LIBRARY_NAME)
-$(LIBRARY_FILE):		$(OBJS)
+.libs/$(LIBRARY_FILE):		$(OBJS)
 				mkdir -p .libs
 				gcc $(MYCFLAGS) $(CFLAGS) -shared -Wl,-soname,${LIBRARY_LINK}.$(LIBRARY_MAJOR) -o .libs/$(LIBRARY_FILE) $(OBJS) $(MYLIBS)
 				ln -sf $(LIBRARY_FILE) .libs/$(LIBRARY_LINK)

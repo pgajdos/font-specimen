@@ -145,9 +145,9 @@ int unicode_interval_statistics(FcPattern *pattern,
   FcCharSet *charset;
 
   *stats = (uinterval_stat_t*)malloc(sizeof(uinterval_stat_t)*map_len);
-  if (!stats)
+  if (!*stats)
   {
-    error("unicode: out of memory");
+    font_specimen_error("unicode: out of memory");
     return -1;
   }
   bzero(*stats, sizeof(uinterval_stat_t)*map_len);

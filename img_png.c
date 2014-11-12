@@ -42,7 +42,7 @@ unsigned char *swapRB(unsigned char *pix_string, int len)
 
   if (len % 3 == 0)
   {
-    error("img_png: bitmap lenght of row is not multiple of 3");
+    font_specimen_error("img_png: bitmap lenght of row is not multiple of 3");
     return NULL;
   }
 
@@ -65,20 +65,20 @@ int img_png_write(FILE *png, bitmap_t bitmap)
   png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   if (png_ptr == NULL) 
   {
-    error("img_png: can nott create write structure");
+    font_specimen_error("img_png: can nott create write structure");
     return -1;
   }
 
   info_ptr = png_create_info_struct(png_ptr);
   if (info_ptr == NULL) 
   {
-    error("img_png: can not create info structure");
+    font_specimen_error("img_png: can not create info structure");
     return -1;
   }
 
   if (setjmp(png_jmpbuf(png_ptr))) 
   {
-    error("img_png: can not set png error handler");
+    font_specimen_error("img_png: can not set png error handler");
     return -1;
   }
 
@@ -114,7 +114,6 @@ int img_png_write(FILE *png, bitmap_t bitmap)
   }
   png_write_end(png_ptr, NULL);
 
-  fclose(png);
   png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
   png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
 

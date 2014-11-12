@@ -83,7 +83,7 @@ unsigned hbz_glyphs(uint32_t s[],
 
   if (glyph_count <= 0)
   {
-    error("harfbuzz: glyph positions couldn't be figured out");
+    font_specimen_error("harfbuzz: glyph positions couldn't be figured out");
     return 1;
   }
 
@@ -94,7 +94,7 @@ unsigned hbz_glyphs(uint32_t s[],
       *glyph_offsets == NULL || 
       *glyph_advances == NULL)
   {
-    error("harfbuzz: out of memory");
+    font_specimen_error("harfbuzz: out of memory");
     return -1;
   }
 
@@ -105,7 +105,7 @@ unsigned hbz_glyphs(uint32_t s[],
        script for certain size */
     if (hb_glyph_infos[g].codepoint == 0)
     {
-      error("harfbuzz: no size for this font and script");
+      font_specimen_error("harfbuzz: no size for this font and script");
       return -1;
     }
     (*glyph_codepoints)[g] = hb_glyph_infos[g].codepoint;
