@@ -238,9 +238,9 @@ static int strings_compact(uint32_t string[],
     (*strings)[i].grayscale = 100;
 
     if (dir < 2)
-      y += sizes[i+1] + strings_dist;
+      y += sizes[i] + strings_dist;
     else
-      x += sizes[i+1] + strings_dist;
+      x += sizes[i] + strings_dist;
   }
 
   /* gray big on the background */
