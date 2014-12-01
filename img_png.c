@@ -66,8 +66,6 @@ int img_png_write(FILE *png, bitmap_t bitmap)
   png_width  = lay_horizontal(bitmap.ord) ? bitmap.width / 3  : bitmap.width;
   png_height = lay_vertical(bitmap.ord)   ? bitmap.height / 3 : bitmap.height;
 
-  printf("PNG: %dx%d\n", png_width, png_height);
-
   png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   if (png_ptr == NULL) 
   {
