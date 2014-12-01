@@ -184,6 +184,10 @@ static int strings_compact(uint32_t string[],
   }
 
   len = ft_text_length(string, pattern, sizes[nsizes-1], dir, script, lang);
+
+  if (len < 0)
+    return -1;
+
   if (dir < 2)
   {
     if (!*width)
@@ -323,6 +327,7 @@ int specimen_write(specimen_type_t type,
   int tmp;
 
   bitmap_t bitmap;
+  int ord, lcdfilter;
   int t;
   specimen_string_t *strings;
 
@@ -330,9 +335,9 @@ int specimen_write(specimen_type_t type,
   const char *rendering_options_bool[] = { FC_ANTIALIAS, 
                                            FC_HINTING, 
                                            FC_AUTOHINT, 
-                                           FC_LCD_FILTER, 
                                            NULL };
   const char *rendering_options_int[] = {  FC_HINT_STYLE, 
+                                           FC_LCD_FILTER,
                                            FC_RGBA, 
                                            FC_EMBEDDED_BITMAP,
                                            NULL };
@@ -354,10 +359,11 @@ int specimen_write(specimen_type_t type,
     o++;
   }
       
+  o = 0;
   while (rendering_options_int[o])
   {
-    if (fontconfig_pattern_get_bool(pat, rendering_options_int[o], &value) == 0)
-      fontconfig_pattern_set_bool(fnt, rendering_options_int[o], value);
+    if (fontconfig_pattern_get_integer(pat, rendering_options_int[o], &value) == 0)
+      fontconfig_pattern_set_integer(fnt, rendering_options_int[o], value);
     o++;
   }
   fontconfig_pattern_destroy(pat);
@@ -405,7 +411,12 @@ int specimen_write(specimen_type_t type,
       return -1;
   }
 
-  if (ft_initialize_bitmap(&bitmap, height, width) < 0)
+  if (fontconfig_pattern_get_integer(fnt, FC_RGBA, &ord) < 0)
+    ord = FC_RGBA_UNKNOWN;
+  if (fontconfig_pattern_get_integer(fnt, FC_LCD_FILTER, &lcdfilter) < 0)
+    lcdfilter = FC_LCD_NONE;
+
+  if (ft_initialize_bitmap(&bitmap, height, width, ord, lcdfilter) < 0)
     return -1;
 
   for (t = 0; t < nstrings; t++)

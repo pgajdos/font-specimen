@@ -21,6 +21,7 @@
  */
 
 #include <png.h>
+#include <stdio.h>
 
 #include "img_png.h"
 #include "ft.h"
@@ -57,15 +58,20 @@ unsigned char *swapRB(unsigned char *pix_string, int len)
 
 int img_png_write(FILE *png, bitmap_t bitmap)
 {
-  int  j;
+  int  j, png_width, png_height;
   png_structp png_ptr;
   png_infop info_ptr;
   unsigned char row[bitmap.height];
 
+  png_width  = lay_horizontal(bitmap.ord) ? bitmap.width / 3  : bitmap.width;
+  png_height = lay_vertical(bitmap.ord)   ? bitmap.height / 3 : bitmap.height;
+
+  printf("PNG: %dx%d\n", png_width, png_height);
+
   png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
   if (png_ptr == NULL) 
   {
-    font_specimen_error("img_png: can nott create write structure");
+    font_specimen_error("img_png: can not create write structure");
     return -1;
   }
 
@@ -84,23 +90,23 @@ int img_png_write(FILE *png, bitmap_t bitmap)
 
   png_init_io(png_ptr, png);
 
-  if (bitmap.ord == ORD_GRAY)
+  if (lay_color(bitmap.ord))
   {
-    png_set_IHDR(png_ptr, info_ptr, bitmap.width, bitmap.height,
-                 8, PNG_COLOR_TYPE_GRAY, PNG_INTERLACE_NONE,
+    png_set_IHDR(png_ptr, info_ptr, png_width, png_height,
+                 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
   }
   else
   {
-    png_set_IHDR(png_ptr, info_ptr, bitmap.width, bitmap.height,
-                 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
+    png_set_IHDR(png_ptr, info_ptr, png_width, png_height,
+                 8, PNG_COLOR_TYPE_GRAY, PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
   }
 
   png_write_info(png_ptr, info_ptr);
   for (j = 0; j < bitmap.height; j++)
   {
-    if (bitmap.ord == ORD_BGR)
+    if (lay_bgr(bitmap.ord))
     {
       memcpy(bitmap.data[j], row, bitmap.height);
       if (swapRB(row, bitmap.height) == NULL)

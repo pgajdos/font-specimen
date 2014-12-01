@@ -31,12 +31,10 @@
 #include FT_FREETYPE_H
 #include FT_LCD_FILTER_H
 
-typedef enum 
-{
-  ORD_GRAY,
-  ORD_RGB,
-  ORD_BGR
-} sp_ord_t;
+#define lay_color(ord)      (FC_RGBA_UNKNOWN < ord && ord < FC_RGBA_NONE)
+#define lay_horizontal(ord) (ord == FC_RGBA_RGB || ord == FC_RGBA_BGR)
+#define lay_vertical(ord)   (ord == FC_RGBA_VRGB || ord == FC_RGBA_VBGR)
+#define lay_bgr(ord)        (ord == FC_RGBA_BGR || ord == FC_RGBA_VBGR)
 
 typedef struct
 {
@@ -54,12 +52,13 @@ typedef struct
   const char *lang;
   FT_Int32 load_flags;
   FT_Render_Mode render_mode;
-  sp_ord_t ord;
+  int ord;
 } bitmap_t;
 
 /* pxsize == 0 -> don't initialize face */
 char *freetype_version(char *string, int maxlen);
-int ft_initialize_bitmap(bitmap_t *bitmap, int height, int width);
+int ft_initialize_bitmap(bitmap_t *bitmap, int height, int width, 
+                         int ord, int lcdfilter);
 int ft_bitmap_set_font(bitmap_t *bitmap, 
                        FcPattern *pattern,
                        int pxsize,

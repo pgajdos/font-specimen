@@ -49,11 +49,18 @@ char *freetype_version(char *string, int maxlen)
   return string;
 }
 
-int ft_initialize_bitmap(bitmap_t *bitmap, int height, int width)
+int ft_initialize_bitmap(bitmap_t *bitmap, int height, int width, 
+                         int ord, int lcdfilter)
 {
   int row;
 
   FT_Error err;
+
+  if (lay_horizontal(ord))
+    width *= 3;
+
+  if (lay_vertical(ord))
+    height *= 3;
 
   bitmap->data = (unsigned char **)malloc(height*sizeof(unsigned char *));
   if (! bitmap->data)
@@ -85,6 +92,34 @@ int ft_initialize_bitmap(bitmap_t *bitmap, int height, int width)
 
   bitmap->face = NULL;
 
+  bitmap->load_flags = FT_LOAD_DEFAULT;
+  bitmap->render_mode = FT_RENDER_MODE_NORMAL;
+
+  /* these are common for whole specimen image */
+  if (lay_color(ord))
+  {
+    err = FT_Library_SetLcdFilter(bitmap->library, lcdfilter);
+    if (err)
+    {
+      font_specimen_error("freetype: can not set lcd filter");
+      return -1;
+    }
+
+    if (lay_horizontal(ord))
+    {
+      bitmap->load_flags |= FT_LOAD_TARGET_LCD;
+      bitmap->render_mode = FT_RENDER_MODE_LCD;
+    }
+
+    if (lay_vertical(ord))
+    {
+      bitmap->load_flags |= FT_LOAD_TARGET_LCD_V;
+      bitmap->render_mode = FT_RENDER_MODE_LCD_V;
+    }
+  }
+
+  bitmap->ord = ord;
+
   return 0;
 }
 
@@ -102,8 +137,6 @@ int ft_bitmap_set_font(bitmap_t *bitmap,
   FcBool antialias;
   int hintstyle;
   FcBool embeddedbitmaps;
-  int subpixel_layout;
-  int lcdfilter;
 
   const char *family;
   const char *style;
@@ -182,21 +215,20 @@ int ft_bitmap_set_font(bitmap_t *bitmap,
   if (fontconfig_pattern_get_bool(pattern, FC_SCALABLE, &scalable) < 0)
     return -1;
 
-  bitmap->load_flags = FT_LOAD_DEFAULT;
-  bitmap->render_mode = FT_RENDER_MODE_NORMAL;
-
   if (scalable)
   {
-    if (fontconfig_pattern_get_bool(pattern, FC_ANTIALIAS, &antialias) < 0 ||
-        fontconfig_pattern_get_bool(pattern, FC_HINTING, &hinting) < 0 ||
-        fontconfig_pattern_get_bool(pattern, FC_AUTOHINT, &autohint) < 0 ||
-        fontconfig_pattern_get_integer(pattern, FC_HINT_STYLE, &hintstyle) < 0 ||
-        fontconfig_pattern_get_bool(pattern, FC_EMBEDDED_BITMAP, &embeddedbitmaps) < 0 ||
-        fontconfig_pattern_get_integer(pattern, FC_RGBA, &subpixel_layout) < 0 ||
-        fontconfig_pattern_get_integer(pattern, FC_LCD_FILTER, &lcdfilter) < 0)
-      return -1;
+    if (fontconfig_pattern_get_bool(pattern, FC_ANTIALIAS, &antialias) < 0)
+      antialias = FcTrue;
+    if (fontconfig_pattern_get_bool(pattern, FC_HINTING, &hinting) < 0)
+      hinting = FcTrue;
+    if (fontconfig_pattern_get_bool(pattern, FC_AUTOHINT, &autohint) < 0)
+      autohint = FcTrue;
+    if (fontconfig_pattern_get_integer(pattern, FC_HINT_STYLE, &hintstyle) < 0)
+      hintstyle = FC_HINT_MEDIUM;
+    if (fontconfig_pattern_get_bool(pattern, FC_EMBEDDED_BITMAP, &embeddedbitmaps) < 0)
+      embeddedbitmaps = FcTrue;
 
-    if (!antialias)
+    if (!lay_color(bitmap->ord) && !antialias)
     {
       bitmap->render_mode = FT_RENDER_MODE_MONO;
       bitmap->load_flags |= FT_LOAD_TARGET_MONO;
@@ -226,28 +258,6 @@ int ft_bitmap_set_font(bitmap_t *bitmap,
 
   if (text_direction >= 2)
     bitmap->load_flags |= FT_LOAD_VERTICAL_LAYOUT;
-
-  bitmap->ord = ORD_GRAY;
-  if (0 < subpixel_layout && subpixel_layout < 5)
-  {
-    FT_Library_SetLcdFilter(bitmap->library, lcdfilter);
-
-    bitmap->ord = ORD_RGB;
-    if (subpixel_layout == 2 || subpixel_layout == 4)
-      bitmap->ord = ORD_BGR;
-  }
-
-  if (subpixel_layout == 1 || subpixel_layout == 2)
-  {
-    bitmap->load_flags |= FT_LOAD_TARGET_LCD;
-    bitmap->render_mode = FT_RENDER_MODE_LCD;
-  }
-
-  if (subpixel_layout == 3 || subpixel_layout == 4)
-  {
-    bitmap->load_flags |= FT_LOAD_TARGET_LCD_V;
-    bitmap->render_mode = FT_RENDER_MODE_LCD_V;
-  }
 
   return 0;
 }
@@ -291,8 +301,15 @@ void draw_bitmap(FT_Bitmap *glyph,
                  int monochrome)
 {
   FT_Int i, j, p, q;
-  FT_Int x_max = x + glyph->width;
-  FT_Int y_max = y + glyph->rows;
+  FT_Int x_max, y_max;
+
+  if (lay_horizontal(bitmap.ord))
+    x *= 3;
+  if (lay_vertical(bitmap.ord))
+    y *= 3;
+
+  x_max = x + glyph->width;
+  y_max = y + glyph->rows;
 
   for (i = x, p = 0; i < x_max; i++, p++)
   {
@@ -311,7 +328,7 @@ void draw_bitmap(FT_Bitmap *glyph,
       }
       else
       {
-        bitmap.data[j][i] &= ~((char)((int)glyph->buffer[q * glyph->width + p]*bitmap.grayscale/100));
+        bitmap.data[j][i] &= ~((char)((int)glyph->buffer[q * glyph->pitch + p]*bitmap.grayscale/100));
       }
     }
   }
@@ -330,7 +347,7 @@ int ft_text_length(uint32_t text[], FcPattern *pattern, int pxsize,
 {
   bitmap_t bitmap;
   int len;
-  if (ft_initialize_bitmap(&bitmap, 0, 0) < 0)
+  if (ft_initialize_bitmap(&bitmap, 0, 0, FC_RGBA_UNKNOWN, FC_LCD_NONE) < 0)
     return -1;
   if (ft_bitmap_set_font(&bitmap, pattern, pxsize, 1.0,
                          dir, script, lang) < 0)
@@ -360,6 +377,7 @@ static int ft_draw_text_(uint32_t text[], int x,  int y,
   FT_Vector *glyph_advances;
   FT_Vector *glyph_positions;
   FT_Glyph *glyphs;
+  FT_BitmapGlyph bit;
 
   int monochrome;
   int nglyphs, g;
@@ -433,9 +451,11 @@ static int ft_draw_text_(uint32_t text[], int x,  int y,
     for (g = 0; g < nglyphs; g++)
     {
       monochrome = 0;
-      if (bitmap->load_flags & FT_LOAD_TARGET_MONO || 
+      if (bitmap->render_mode == FT_RENDER_MODE_MONO || 
           glyphs[g]->format == FT_GLYPH_FORMAT_BITMAP)
+      {
         monochrome = 1;
+      }
 
       err = FT_Glyph_To_Bitmap(&glyphs[g], bitmap->render_mode, 
                                  NULL, 1);
@@ -445,12 +465,13 @@ static int ft_draw_text_(uint32_t text[], int x,  int y,
         return -1;
       }
 
-      FT_BitmapGlyph bit;
       bit = (FT_BitmapGlyph)glyphs[g];
       draw_bitmap(&bit->bitmap, 
                   glyph_positions[g].x + bit->left, 
                   glyph_positions[g].y - bit->top, 
                   *bitmap, monochrome);
+
+
     }
   }
 

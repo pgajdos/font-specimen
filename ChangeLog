@@ -1,1 +1,4 @@
+2014-12-01 allow color specimen
+2014-11-13 monochrome fonts: black absorbs gray color 
+           on the pixel, not vice versa
 2014-07-11 font-specimen library created
