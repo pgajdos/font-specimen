@@ -225,7 +225,8 @@ static int strings_compact(uint32_t string[],
       return -2;
   }
 
-  for (i = 0; i < nsizes; i++)
+  i = 0;
+  while (1)
   {
     (*strings)[i].sentence = string;
     (*strings)[i].x = x;
@@ -236,6 +237,9 @@ static int strings_compact(uint32_t string[],
     (*strings)[i].lang = lang;
     (*strings)[i].dir = dir;
     (*strings)[i].grayscale = 100;
+
+    if (++i == nsizes)
+      break;
 
     if (dir < 2)
       y += sizes[i] + strings_dist;
@@ -415,6 +419,8 @@ int specimen_write(specimen_type_t type,
     ord = FC_RGBA_UNKNOWN;
   if (fontconfig_pattern_get_integer(fnt, FC_LCD_FILTER, &lcdfilter) < 0)
     lcdfilter = FC_LCD_NONE;
+
+  lcdfilter = (lcdfilter != 3 ? lcdfilter : 16);
 
   if (ft_initialize_bitmap(&bitmap, height, width, ord, lcdfilter) < 0)
     return -1;
