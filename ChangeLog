@@ -1,4 +1,6 @@
 2014-12-02 fix bgr layout
+           fix vertical layout
+           add font-specimen.pc file
 2014-12-01 allow color specimen
 2014-11-13 monochrome fonts: black absorbs gray color 
            on the pixel, not vice versa

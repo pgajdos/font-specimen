@@ -58,10 +58,12 @@ unsigned char *swapRB(unsigned char *pix_string, int len)
 
 int img_png_write(FILE *png, bitmap_t bitmap)
 {
-  int  j, png_width, png_height;
+  int  i, j, png_width, png_height;
   png_structp png_ptr;
   png_infop info_ptr;
-  unsigned char row[bitmap.width];
+  int row_len = lay_vertical(bitmap.ord) ? 3*bitmap.width : bitmap.width; 
+  unsigned char row[row_len];
+  
 
   png_width  = lay_horizontal(bitmap.ord) ? bitmap.width / 3  : bitmap.width;
   png_height = lay_vertical(bitmap.ord)   ? bitmap.height / 3 : bitmap.height;
@@ -104,18 +106,30 @@ int img_png_write(FILE *png, bitmap_t bitmap)
   png_write_info(png_ptr, info_ptr);
   for (j = 0; j < bitmap.height; j++)
   {
-    if (lay_bgr(bitmap.ord))
+    if (lay_vertical(bitmap.ord))
     {
-      memcpy(row, bitmap.data[j], bitmap.width);
-      if (swapRB(row, bitmap.width) == NULL)
-        return -1;
-      png_write_row(png_ptr, row);
+      for (i = 0; i < bitmap.width; i++)
+      {
+        row[3*i]     = bitmap.data[j    ][i];
+        row[3*i + 1] = bitmap.data[j + 1][i];
+        row[3*i + 2] = bitmap.data[j + 2][i];
+      }
+      j += 2;
     }
     else
     {
-      png_write_row(png_ptr, bitmap.data[j]);
+      memcpy(row, bitmap.data[j], row_len);
     }
+
+    if (lay_bgr(bitmap.ord))
+    {
+      if (swapRB(row, row_len) == NULL)
+        return -1;
+    }
+    
+    png_write_row(png_ptr, row);
   }
+
   png_write_end(png_ptr, NULL);
 
   png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);

@@ -19,7 +19,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-VERSION		 = 20141201
+VERSION		 = 20141202
 LIBRARY_NAME	 = font-specimen
 LIBRARY_MAJOR    = 0
 LIBRARY_VERSION  = 0.0.0
@@ -42,7 +42,7 @@ UNICODE_SCRIPTS  = collections-map.sh collections.sh scripts-map.sh scripts.sh  
 
 font-specimen:			font-specimen.c .libs/$(LIBRARY_FILE)
 				gcc -L.libs $(MYCFLAGS) $(CFLAGS) $(MYLDFLAGS) $(LDLAGS) -o font-specimen font-specimen.c -l$(LIBRARY_NAME)
-.libs/$(LIBRARY_FILE):		$(OBJS)
+.libs/$(LIBRARY_FILE):		$(OBJS) font-specimen.pc
 				mkdir -p .libs
 				gcc $(MYCFLAGS) $(CFLAGS) -shared -Wl,-soname,${LIBRARY_LINK}.$(LIBRARY_MAJOR) -o .libs/$(LIBRARY_FILE) $(OBJS) $(MYLIBS)
 				ln -sf $(LIBRARY_FILE) .libs/$(LIBRARY_LINK)
@@ -69,10 +69,14 @@ unicode/scripts-map.txt:	unicode/Scripts.txt unicode/scripts-map.sh unicode/coll
 				cd unicode; cat Scripts.txt | sh scripts-map.sh > scripts-map.txt; cat Scripts.txt Blocks.txt | sh collections-map.sh >> scripts-map.txt;
 unicode/blocks-map.txt:		unicode/Blocks.txt unicode/blocks.sh
 				cd unicode; cat Blocks.txt | sh blocks.sh > blocks-map.txt
-
-
+font-specimen.pc:		font-specimen.pc.in
+				cp -f font-specimen.pc{.in,}
+				sed -i "s:@VERSION@:$(VERSION):" font-specimen.pc
+				sed -i "s:@INCLUDEDIR@:$(INCLUDEDIR):" font-specimen.pc
+				sed -i "s:@LIBDIR@:$(LIBDIR):" font-specimen.pc
+				sed -i "s:@LIBS@:-l$(LIBRARY_NAME):" font-specimen.pc
 clean:
-				rm -rf *.o font-specimen unicode/scripts.txt unicode/scripts-map.txt .libs
+				rm -rf *.o font-specimen unicode/scripts.txt unicode/scripts-map.txt .libs font-specimen.pc
 
 install:			font-specimen
 				mkdir -p $(DESTDIR)/$(INCLUDEDIR)
@@ -83,10 +87,12 @@ install:			font-specimen
 				ln -sf $(LIBRARY_FILE) $(DESTDIR)/$(LIBDIR)/$(LIBRARY_LINK)
 				mkdir -p -m 0755 $(DESTDIR)/$(BINDIR)
 				install -m 0755 font-specimen $(DESTDIR)/$(BINDIR)
+				mkdir -p $(DESTDIR)/$(PKG_CONFIG_DIR)
+				install -m 0644 font-specimen.pc $(DESTDIR)/$(PKG_CONFIG_DIR)
 
 release:			font-specimen
 				mkdir -p $(LIBRARY_NAME)-$(VERSION)
-				cp -r *.c *.h Makefile $(LIBRARY_NAME)-$(VERSION)
+				cp -r *.c *.h Makefile font-specimen.pc.in $(LIBRARY_NAME)-$(VERSION)
 				mkdir -p $(LIBRARY_NAME)-$(VERSION)/unicode
 				for f in $(UNICODE_SOURCES) $(UNICODE_SCRIPTS); do \
 				  cp unicode/$$f $(LIBRARY_NAME)-$(VERSION)/unicode; \
