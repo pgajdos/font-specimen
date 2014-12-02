@@ -41,7 +41,7 @@ unsigned char *swapRB(unsigned char *pix_string, int len)
   int p;
   char tmp;
 
-  if (len % 3 == 0)
+  if (len % 3 != 0)
   {
     font_specimen_error("img_png: bitmap lenght of row is not multiple of 3");
     return NULL;
@@ -61,7 +61,7 @@ int img_png_write(FILE *png, bitmap_t bitmap)
   int  j, png_width, png_height;
   png_structp png_ptr;
   png_infop info_ptr;
-  unsigned char row[bitmap.height];
+  unsigned char row[bitmap.width];
 
   png_width  = lay_horizontal(bitmap.ord) ? bitmap.width / 3  : bitmap.width;
   png_height = lay_vertical(bitmap.ord)   ? bitmap.height / 3 : bitmap.height;
@@ -106,8 +106,8 @@ int img_png_write(FILE *png, bitmap_t bitmap)
   {
     if (lay_bgr(bitmap.ord))
     {
-      memcpy(bitmap.data[j], row, bitmap.height);
-      if (swapRB(row, bitmap.height) == NULL)
+      memcpy(row, bitmap.data[j], bitmap.width);
+      if (swapRB(row, bitmap.width) == NULL)
         return -1;
       png_write_row(png_ptr, row);
     }
