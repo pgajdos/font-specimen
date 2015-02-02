@@ -102,7 +102,8 @@ int ft_initialize_bitmap(bitmap_t *bitmap, int height, int width,
     if (err)
     {
       font_specimen_error("freetype: can not set lcd filter");
-      return -1;
+      bitmap->ord = FC_RGBA_NONE;
+      return 0;
     }
 
     if (lay_horizontal(ord))

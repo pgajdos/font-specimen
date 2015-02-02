@@ -1,3 +1,5 @@
+2015-02-02 do not treat unsuccessful LcdFilter setting 
+           as a fatal error
 2014-12-02 fix bgr layout
            fix vertical layout
            add font-specimen.pc file

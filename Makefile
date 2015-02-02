@@ -19,7 +19,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-VERSION		 = 20141202
+VERSION		 = 20150202
 LIBRARY_NAME	 = font-specimen
 LIBRARY_MAJOR    = 0
 LIBRARY_VERSION  = 0.0.0
@@ -70,7 +70,7 @@ unicode/scripts-map.txt:	unicode/Scripts.txt unicode/scripts-map.sh unicode/coll
 unicode/blocks-map.txt:		unicode/Blocks.txt unicode/blocks.sh
 				cd unicode; cat Blocks.txt | sh blocks.sh > blocks-map.txt
 font-specimen.pc:		font-specimen.pc.in
-				cp -f font-specimen.pc{.in,}
+				cp -f font-specimen.pc.in font-specimen.pc
 				sed -i "s:@VERSION@:$(VERSION):" font-specimen.pc
 				sed -i "s:@INCLUDEDIR@:$(INCLUDEDIR):" font-specimen.pc
 				sed -i "s:@LIBDIR@:$(LIBDIR):" font-specimen.pc
